@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fmt/ — file converter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --amber: #D97706;
+        --amber-dark: #b45309;
+        --amber-light: #FEF3C7;
+        --amber-glow: rgba(217,119,6,0.12);
+        --bg: #F7F6F3;
+        --surface: #FFFFFF;
+        --border: #E8E6E1;
+        --border-strong: #D4D0C8;
+        --text: #1C1A16;
+        --text-2: #6B6860;
+        --text-3: #AAA89F;
+        --green: #2D6A2D;
+        --green-bg: #EAF3DE;
+        --red: #7A1F1F;
+        --red-bg: #FCEBEB;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+        --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'IBM Plex Mono', monospace;
+        background: var(--bg);
+        min-height: 100vh;
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      /* subtle grid background */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .page-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 640px;
+        margin: 0 auto;
+        padding: clamp(40px, 8vw, 80px) clamp(16px, 5vw, 32px) 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+
+      /* ── Header ─────────────────────────────────────────── */
+      header {
+        margin-bottom: clamp(36px, 6vw, 56px);
+      }
+
+      .logo-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--text);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        filter: drop-shadow(5px 5px 8px rgba(255, 137, 10, 0.479));
+
+        transition: transform 0.2s, background 0.2s;
+      }
+      .logo-icon:hover { background: var(--amber); transform: rotate(-10deg) scale(1.08);filter: drop-shadow(5px 5px 8px rgba(255, 137, 10, 0.479)); }
+      .logo-icon:active { background: var(--amber); transform: rotate(10deg) scale(1.4);filter: drop-shadow(6px 5px 8px rgba(255, 79, 10, 0.25));}
+       .logo-icon svg { width: 18px; height: 18px; stroke: #fff; }
+
+      h1 {
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(1.6rem, 5vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -2px;
+        line-height: 1;
+        cursor: default;
+        transition: color 0.4s;
+      }
+      h1:hover { color: var(--amber); }
+
+      .tagline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+        padding-left: 46px;
+      }
+
+      .tagline span {
+        font-size: clamp(0.7rem, 2vw, 0.78rem);
+        color: var(--text-3);
+        letter-spacing: 0.06em;
+        transition: color 0.18s, transform 0.18s;
+        cursor: default;
+        display: inline-block;
+      }
+      .tagline span:hover { color: var(--amber); transform: translateY(-1px); }
+      .tagline .dot { color: var(--border-strong); font-size: 0.5rem; }
+
+      /* ── Drop zone ──────────────────────────────────────── */
+      #dropzone {
+        background: var(--surface);
+        border: 1.5px dashed var(--border-strong);
+        border-radius: var(--radius);
+        padding: clamp(40px, 8vw, 64px) clamp(24px, 5vw, 48px);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      #dropzone::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, var(--amber-glow) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+
+      #dropzone:hover {
+        border-color: var(--text-3);
+        box-shadow: var(--shadow-md);
+      }
+      #dropzone:hover::after { opacity: 1; }
+
+      #dropzone.drag-over {
+        border-color: var(--amber);
+        border-style: solid;
+        background: #FFFDF7;
+        box-shadow: 0 0 0 4px var(--amber-glow), var(--shadow-md);
+        transform: scale(1.005);
+      }
+      #dropzone.drag-over::after { opacity: 1; }
+
+      #dropzone.has-file {
+        border-style: solid;
+        border-color: var(--amber);
+        background: #FFFDF7;
+      }
+
+      .dz-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      }
+      #dropzone:hover .dz-icon,
+      #dropzone.drag-over .dz-icon { background: var(--amber-light); border-color: var(--amber); transform: translateY(-2px); }
+      #dropzone.has-file .dz-icon  { background: var(--amber-light); border-color: var(--amber); }
+      .dz-icon svg { width: 22px; height: 22px; stroke: var(--text-3); transition: stroke 0.2s; }
+      #dropzone:hover .dz-icon svg,
+      #dropzone.drag-over .dz-icon svg,
+      #dropzone.has-file .dz-icon svg { stroke: var(--amber); }
+
+      .drop-label { font-size: clamp(0.82rem, 2.2vw, 0.9rem); color: var(--text-2); line-height: 1.5; }
+      .drop-label strong { color: var(--amber); }
+      .drop-sub { margin-top: 6px; font-size: 0.72rem; color: var(--text-3); letter-spacing: 0.04em; }
+
+      #file-input { display: none; }
+
+      /* file pill */
+      #file-pill {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        margin-top: 20px;
+        font-size: 0.76rem;
+        color: var(--text-2);
+        text-align: left;
+        animation: slideUp 0.2s ease;
+      }
+      #file-pill.visible { display: flex; }
+      #file-pill svg { flex-shrink: 0; stroke: var(--amber); }
+      .fname { font-weight: 500; color: var(--text); word-break: break-all; flex: 1; }
+      .fsize { color: var(--text-3); white-space: nowrap; font-size: 0.7rem; }
+
+      #clear-btn {
+        margin-left: 4px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-3);
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.15s, background 0.15s;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+      }
+      #clear-btn:hover { color: var(--red); background: var(--red-bg); }
+
+      /* ── Controls ───────────────────────────────────────── */
+      #controls {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+        animation: slideUp 0.25s ease;
+      }
+      #controls.visible { display: flex; }
+
+      .field-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.09em;
+        color: var(--text-3);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      select {
+        width: 100%;
+        padding: 11px 36px 11px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 0.85rem;
+        color: var(--text);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-shadow: var(--shadow);
+      }
+      select:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
+
+      #convert-btn {
+        width: 100%;
+        padding: 13px;
+        border-radius: var(--radius-sm);
+        border: none;
+        background: var(--text);
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.88rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      #convert-btn:hover:not(:disabled) {
+        background: var(--amber);
+        box-shadow: 0 4px 20px rgba(217,119,6,0.3);
+      }
+      #convert-btn:active:not(:disabled) { transform: scale(0.985); }
+      #convert-btn:disabled {
+        background: var(--border);
+        color: var(--text-3);
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      /* ── Status ─────────────────────────────────────────── */
+      #status-area { margin-top: 12px; min-height: 20px; }
+
+      .status-msg {
+        font-size: 0.76rem;
+        text-align: center;
+        padding: 9px 14px;
+        border-radius: var(--radius-sm);
+        display: none;
+        letter-spacing: 0.02em;
+      }
+      .status-msg.visible { display: block; animation: slideUp 0.2s ease; }
+      .status-msg.loading { background: var(--amber-light); color: #78350F; border: 1px solid #FDE68A; }
+      .status-msg.success { background: var(--green-bg); color: var(--green); border: 1px solid #C0DD97; }
+      .status-msg.error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #F7C1C1; }
+
+      #progress-wrap {
+        width: 100%;
+        height: 3px;
+        background: var(--border);
+        border-radius: 999px;
+        margin-top: 8px;
+        display: none;
+        overflow: hidden;
+      }
+      #progress-wrap.visible { display: block; }
+      #progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--amber), #F59E0B);
+        border-radius: 999px;
+        transition: width 0.4s ease;
+      }
+
+      /* ── Download card ──────────────────────────────────── */
+      #download-card {
+        display: none;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        align-items: center;
+        gap: 14px;
+        margin-top: 12px;
+        box-shadow: var(--shadow);
+        animation: slideUp 0.25s ease;
+      }
+      #download-card.visible { display: flex; }
+
+      .dl-check {
+        width: 36px;
+        height: 36px;
+        background: var(--green-bg);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .dl-check svg { width: 18px; height: 18px; stroke: var(--green); }
+
+      .dl-info { flex: 1; min-width: 0; }
+      .dl-name { font-size: 0.84rem; font-weight: 500; word-break: break-all; color: var(--text); }
+      .dl-sub  { font-size: 0.7rem; color: var(--text-3); margin-top: 2px; }
+
+      #download-btn {
+        padding: 9px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--text);
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.78rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s, transform 0.1s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      #download-btn:hover { background: var(--amber); }
+      #download-btn:active { transform: scale(0.97); }
+      #download-btn svg { width: 14px; height: 14px; stroke: currentColor; }
+
+      /* ── Divider ────────────────────────────────────────── */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 40px 0 20px;
+      }
+      .divider-line { flex: 1; height: 1px; background: var(--border); }
+      .divider-text { font-size: 0.65rem; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; }
+
+      /* ── Footer info strip ──────────────────────────────── */
+      .info-strip {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        box-shadow: var(--shadow);
+      }
+      .info-strip svg { width: 16px; height: 16px; stroke: var(--amber); flex-shrink: 0; margin-top: 1px; }
+      .info-strip p { font-size: 0.72rem; color: var(--text-2); line-height: 1.6; }
+      .info-strip p span { color: var(--text-3); display: block; margin-top: 2px; font-size: 0.68rem; }
+
+      /* ── Clear button row ───────────────────────────────── */
+      .clear-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      #refresh-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        background: none;
+        border: 1px solid var(--border);
+        font-family: inherit;
+        font-size: 0.75rem;
+        color: var(--text-2);
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.02em;
+      }
+      #refresh-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+      #refresh-btn svg   { width: 13px; height: 13px; stroke: currentColor; }
+
+      /* ── Footer ─────────────────────────────────────────── */
+      footer {
+        margin-top: 48px;
+        text-align: center;
+        font-size: 0.65rem;
+        color: var(--text-3);
+        letter-spacing: 0.06em;
+      }
+
+      /* ── Animations ─────────────────────────────────────── */
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .page-wrap > * { animation: slideUp 0.35s ease both; }
+      .page-wrap > header          { animation-delay: 0.05s; }
+      .page-wrap > #dropzone       { animation-delay: 0.1s; }
+      .page-wrap > #controls       { animation-delay: 0s; }
+
+      /* ── Responsive ─────────────────────────────────────── */
+      @media (max-width: 480px) {
+        #download-card { flex-wrap: wrap; }
+        #download-btn  { width: 100%; justify-content: center; }
+        .tagline { padding-left: 0; justify-content: center; }
+        .logo-row { justify-content: center; }
+      }
+      
+      /*Mouse Glow */
+              #mouse-glow {
+          position: fixed;
+          width: 800px;
+          height: 800px;
+          border-radius: 50%;
+          pointer-events: none;          /* won't block clicks */
+          z-index: 0;                    /* behind everything */
+          transform: translate(-50%, -50%);
+          background: radial-gradient(
+            circle,
+            rgba(255, 157, 46, 0.356)  0%,
+            rgba(255, 157, 46, 0.231) 10%,
+            transparent 70%
+          );
+          transition: left 0.08s ease, top 0.08s ease;  /* slight lag = feels smooth */
+          will-change: left, top;
+
+        }
+    </style>
+  </head>
+  <body>
+    <div class="page-wrap">
+
+      <!-- Header -->
+      <header>
+        <div class="logo-row">
+          <div class="logo-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
+              <polyline points="14 2 14 8 20 8" stroke-linejoin="round"/>
+              <path d="M12 18v-6M9 15l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h1>fmt/</h1>
+        </div>
+        <div class="tagline">
+          <span>convert</span>
+          <span class="dot">●</span>
+          <span>anything</span>
+          <span class="dot">●</span>
+          <span>free</span>
+          <span class="dot">●</span>
+          <span>instant</span>
+          <span class="dot">●</span>
+          <span>secure</span>
+        </div>
+      </header>
+
+      <!-- Drop zone -->
+      <div id="dropzone">
+        <div class="dz-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M12 15V3m0 0L8 7m4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 20h16" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="drop-label">Drag &amp; drop your file here, or <strong>click to browse</strong></p>
+        <p class="drop-sub">Video &nbsp;·&nbsp; Audio &nbsp;·&nbsp; Image &nbsp;·&nbsp; PDF</p>
+
+        <div id="file-pill">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
+            <polyline points="14 2 14 8 20 8" stroke-linejoin="round"/>
+          </svg>
+          <span class="fname" id="pill-name"></span>
+          <span class="fsize" id="pill-size"></span>
+          <button id="clear-btn" title="Remove file" aria-label="Remove file">✕</button>
+        </div>
+
+        <input type="file" id="file-input"
+          accept=".mp4,.mov,.avi,.wmv,.mkv,.mp3,.wav,.flac,.ogg,.jpg,.jpeg,.png,.webp,.gif,.bmp,.pdf" />
+      </div>
+
+      <!-- Controls -->
+      <div id="controls">
+        <div>
+          <label class="field-label" for="format-select">Convert to</label>
+          <select id="format-select">
+            <option value="">— select output format —</option>
+          </select>
+        </div>
+        <button id="convert-btn" disabled>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" stroke-linecap="round"/>
+          </svg>
+          Convert
+        </button>
+      </div>
+
+      <!-- Status -->
+      <div id="status-area">
+        <div class="status-msg" id="status-msg"></div>
+        <div id="progress-wrap"><div id="progress-bar"></div></div>
+      </div>
+
+      <!-- Download card -->
+      <div id="download-card">
+        <div class="dl-check">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="dl-info">
+          <div class="dl-name" id="dl-filename">converted.mp3</div>
+          <div class="dl-sub">ready to download</div>
+        </div>
+        <button id="download-btn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 15V3M8 11l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 20h16" stroke-linecap="round"/>
+          </svg>
+          Download
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">privacy</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Info strip -->
+      <div class="info-strip">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <rect x="3" y="10" width="18" height="12" rx="1"/>
+          <path d="M7 10V7a5 5 0 0 1 10 0v3"/>
+          <circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        <p>
+          Files are processed on your local server and deleted immediately after conversion.
+          <span>Nothing is stored No database. Just refresh the page to clear everything.</span>
+        </p>
+      </div>
+
+      <!-- Clear row -->
+      <div class="clear-row">
+        <button id="refresh-btn">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Clear &amp; reset
+        </button>
+      </div>
+
+      <footer>fmt/ &nbsp;·&nbsp; open source file converter &nbsp;·&nbsp; runs locally, no database</footer>
+
+    </div><!-- /page-wrap -->
+      <div id="mouse-glow"></div>
+
+    <script>
+
+       const glow = document.getElementById("mouse-glow");
+  document.addEventListener("mousemove", (e) => {
+    glow.style.left = e.clientX + "px";
+    glow.style.top  = e.clientY + "px";
+  });
+      document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
+
+      const API = "/api";
+
+      const FORMAT_MAP = {
+        video:    { from: ["mp4","mov","avi","wmv","mkv"],         to: ["mp4","mp3","wav","mov","webm"] },
+        audio:    { from: ["mp3","wav","flac","ogg"],              to: ["mp3","wav"] },
+        image:    { from: ["jpg","jpeg","png","webp","gif","bmp"], to: ["jpg","png","webp"] },
+        document: { from: ["pdf"],                                 to: ["docx"] },
+      };
+
+      const dropzone     = document.getElementById("dropzone");
+      const fileInput    = document.getElementById("file-input");
+      const filePill     = document.getElementById("file-pill");
+      const pillName     = document.getElementById("pill-name");
+      const pillSize     = document.getElementById("pill-size");
+      const clearBtn     = document.getElementById("clear-btn");
+      const controls     = document.getElementById("controls");
+      const formatSelect = document.getElementById("format-select");
+      const convertBtn   = document.getElementById("convert-btn");
+      const statusMsg    = document.getElementById("status-msg");
+      const progressWrap = document.getElementById("progress-wrap");
+      const progressBar  = document.getElementById("progress-bar");
+      const downloadCard = document.getElementById("download-card");
+      const dlFilename   = document.getElementById("dl-filename");
+      const downloadBtn  = document.getElementById("download-btn");
+
+      let selectedFile = null, downloadBlob = null, downloadName = "";
+
+      function getExt(f) { return f.split(".").pop().toLowerCase(); }
+      function formatBytes(b) {
+        if (b < 1024) return b + " B";
+        if (b < 1024*1024) return (b/1024).toFixed(1) + " KB";
+        return (b/1024/1024).toFixed(2) + " MB";
+      }
+      function getOutputFormats(filename) {
+        const ext = getExt(filename);
+        for (const v of Object.values(FORMAT_MAP)) if (v.from.includes(ext)) return v.to;
+        return [];
+      }
+      function showStatus(text, type) {
+        statusMsg.textContent = text;
+        statusMsg.className = `status-msg ${type} visible`;
+      }
+      function hideStatus() { statusMsg.className = "status-msg"; }
+      function setProgress(pct) {
+        progressWrap.classList.toggle("visible", pct > 0 && pct < 100);
+        progressBar.style.width = pct + "%";
+      }
+
+      function setFile(file) {
+        selectedFile = file;
+        downloadCard.classList.remove("visible");
+        downloadBlob = null;
+        hideStatus(); setProgress(0);
+        pillName.textContent = file.name;
+        pillSize.textContent = formatBytes(file.size);
+        filePill.classList.add("visible");
+        dropzone.classList.add("has-file");
+        const formats = getOutputFormats(file.name);
+        formatSelect.innerHTML = formats.length
+          ? '<option value="">— select output format —</option>' + formats.map(f => `<option value="${f}">.${f}</option>`).join("")
+          : '<option value="">⚠ unsupported file type</option>';
+        controls.classList.add("visible");
+        convertBtn.disabled = true;
+      }
+
+      function clearFile() {
+        selectedFile = null; fileInput.value = "";
+        filePill.classList.remove("visible");
+        dropzone.classList.remove("has-file");
+        controls.classList.remove("visible");
+        downloadCard.classList.remove("visible");
+        hideStatus(); setProgress(0);
+      }
+
+      dropzone.addEventListener("click", e => {
+        if (e.target === clearBtn || clearBtn.contains(e.target)) return;
+        fileInput.click();
+      });
+      fileInput.addEventListener("change", e => { if (e.target.files[0]) setFile(e.target.files[0]); });
+      clearBtn.addEventListener("click", e => { e.stopPropagation(); clearFile(); });
+
+      dropzone.addEventListener("dragover",  e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+      dropzone.addEventListener("dragleave", e => { if (!dropzone.contains(e.relatedTarget)) dropzone.classList.remove("drag-over"); });
+      dropzone.addEventListener("drop", e => {
+        e.preventDefault(); dropzone.classList.remove("drag-over");
+        if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+      });
+
+      formatSelect.addEventListener("change", () => { convertBtn.disabled = !formatSelect.value; });
+
+      convertBtn.addEventListener("click", async () => {
+        if (!selectedFile || !formatSelect.value) return;
+        const format = formatSelect.value;
+        const baseName = selectedFile.name.replace(/\.[^.]+$/, "");
+        downloadName = `${baseName}.${format}`;
+
+        convertBtn.disabled = true;
+        convertBtn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke-linecap="round"/></svg> Converting…`;
+        downloadCard.classList.remove("visible");
+        showStatus("Uploading…", "loading");
+        setProgress(15);
+
+        const form = new FormData();
+        form.append("file", selectedFile);
+        form.append("format", format);
+
+        try {
+          setProgress(40);
+          showStatus("Converting — may take a moment for large files…", "loading");
+          const res = await fetch(`${API}/convert`, { method: "POST", body: form });
+          setProgress(85);
+          if (!res.ok) { const err = await res.json().catch(() => ({ error: "Server error" })); throw new Error(err.error || "Conversion failed"); }
+          downloadBlob = await res.blob();
+          setProgress(100);
+          dlFilename.textContent = downloadName;
+          downloadCard.classList.add("visible");
+          showStatus("✓ Conversion complete!", "success");
+        } catch (err) {
+          showStatus("Error: " + err.message, "error");
+          setProgress(0);
+        } finally {
+          convertBtn.disabled = false;
+          convertBtn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" stroke-linecap="round"/></svg> Convert`;
+          setTimeout(() => setProgress(0), 1400);
+        }
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        if (!downloadBlob) return;
+        const url = URL.createObjectURL(downloadBlob);
+        const a = Object.assign(document.createElement("a"), { href: url, download: downloadName });
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // spin animation for loading state
+      const style = document.createElement("style");
+      style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

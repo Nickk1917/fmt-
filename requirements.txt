@@ -1,0 +1,6 @@
+flask
+flask-cors
+werkzeug
+Pillow
+pdf2docx
+imageio-ffmpeg
