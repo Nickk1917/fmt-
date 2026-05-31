@@ -401,6 +401,7 @@
 
     /* ── Info strip ────────────────────────────────────────── */
     .info-strip {
+      user-select: none;
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 14px 16px;
@@ -426,6 +427,7 @@
     #refresh-btn svg { width: 12px; height: 12px; stroke: currentColor; }
 
     footer {
+      user-select: none;
       margin-top: 48px; text-align: center;
       font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.06em;
     }
@@ -446,7 +448,14 @@
       .logo-row { justify-content: flex-start; }
       .header-top { flex-wrap: wrap; gap: 10px; }
     }
-  </style>
+
+    .kronstadt{
+      user-select: none;
+      transition: all 0.2s;
+    }
+    .kronstadt:hover{color: #F59E0B;transform: translateY(5px); text-shadow: 2px 1px 5px#F59E0B; }
+      .kronstadt:active{color: #ff5e00;transform: translateY(2px); text-shadow: 1px 17px 0px #ffa679; }
+</style>
 </head>
 <body>
 <div id="mouse-glow"></div>
@@ -544,7 +553,7 @@
     </button>
   </div>
 
-  <footer>fmt/ &nbsp;·&nbsp; open source file converter &nbsp;·&nbsp; runs locally</footer>
+  <footer>fmt/ &nbsp;·&nbsp; open source file converter &nbsp;·&nbsp; runs locally <br> <p class="kronstadt">Build by kronstadt</p></footer>
 </div>
 
 <script>
