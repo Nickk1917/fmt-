@@ -679,7 +679,7 @@ function renderCard(job) {
       </div>
     </div>
     <div class="q-slider-wrap ${showSlider ? "visible" : ""}" id="slider-${job.id}">
-      <label class="field-label" style="margin-top:8px;">Quality</label>
+      <label class="field-label" style="margin-top:8px;">Size reduce?</label>
       <div class="q-slider-row">
         <input type="range" min="10" max="100" value="${job.quality}" class="q-quality-slider" data-id="${job.id}" />
         <span class="q-slider-val" id="qval-${job.id}">${job.quality}%</span>
