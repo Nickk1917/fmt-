@@ -1,0 +1,383 @@
+================================================================================
+                    FMT/ - FILE CONVERTER WEB APP
+                        PROJECT DOCUMENTATION
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+
+• Name: fmt/ - File Converter Web Application
+• Purpose: A lightweight, privacy-focused file conversion tool that runs locally on user's machine
+• Type: Full-stack web application (Frontend + Backend)
+• Key Selling Point: Files are processed locally and deleted immediately after conversion (privacy-first approach)
+• Supports: Video, Audio, Image, and Document (PDF) conversions
+
+
+TECH STACK
+================================================================================
+
+BACKEND
+-------
+• Language: Python 3.10+
+• Framework: Flask (lightweight, micro web framework)
+• Server: Flask development server (can be deployed with Gunicorn)
+• Deployment: Procfile for Heroku/cloud deployment
+
+FRONTEND
+--------
+• HTML5: Semantic markup with responsive design
+• CSS3: Custom grid-based styling with dark mode support
+• JavaScript (Vanilla): No external frameworks - pure DOM manipulation
+• Third-party JS Library: JSZip for multi-file zipping
+
+DATABASE
+--------
+• None: Completely stateless application (files deleted after conversion)
+
+
+LIBRARIES & DEPENDENCIES
+================================================================================
+
+PYTHON LIBRARIES
+----------------
+
+Core Web Framework:
+• Flask - Web server and routing (main backend framework)
+• flask-cors - Enables Cross-Origin Resource Sharing (frontend ↔ backend communication)
+• werkzeug - WSGI utilities and secure filename handling
+
+File Processing:
+• Pillow (PIL) - Image processing/conversion (PNG, JPG, WebP, GIF, BMP, TIFF)
+• pdf2docx - PDF to DOCX conversion
+• imageio-ffmpeg - Bundled FFmpeg binary for video/audio processing
+
+System Libraries:
+• os - File system operations (creating folders, deleting files)
+• uuid - Generating unique IDs for uploaded files
+• shutil - Finding executables (FFmpeg detection)
+• subprocess - Running external FFmpeg commands
+• json (via jsonify) - Returning JSON responses to frontend
+
+
+EXTERNAL TOOLS & TECHNOLOGIES
+================================================================================
+
+FFmpeg (Most Critical)
+-----------------------
+• Multimedia framework for video/audio conversion
+• Installed separately (not included in Python packages)
+• Supports: MP4, MOV, AVI, WMV, MKV, WebM (video) + MP3, WAV, FLAC, OGG, AAC, M4A (audio)
+• Used via subprocess calls with specific codec arguments
+
+Browser APIs Used
+-----------------
+• FormData API - Uploading files with metadata
+• Fetch API - Making HTTP POST requests
+• Blob API - Handling binary file data
+• File API - Accessing user-selected files
+• localStorage - Saving user preferences (dark mode toggle)
+• crypto.randomUUID() - Client-side unique ID generation
+
+
+BACKEND ARCHITECTURE (PYTHON CODE BREAKDOWN)
+================================================================================
+
+1. CONFIGURATION & SETUP
+------------------------
+
+BASE_DIR: Absolute path to project directory
+UPLOAD_FOLDER: Temporary storage for files during conversion
+Format Groups: VIDEO_EXTS, AUDIO_EXTS, IMAGE_EXTS (sets of supported formats)
+ALLOWED_CONVERSIONS: Dictionary mapping input format → allowed output formats
+PIL_FORMAT_MAP: Pillow library's format name mapping
+
+
+2. CORE FUNCTIONS
+-----------------
+
+get_ffmpeg()
+• Purpose: Locate FFmpeg executable on system
+• Logic: First checks system PATH, then falls back to imageio-ffmpeg bundle
+• Error Handling: Raises clear error message if FFmpeg not found
+• Returns: Path to FFmpeg executable
+
+run_ffmpeg(args, timeout=600)
+• Purpose: Execute FFmpeg commands for video/audio processing
+• Parameters: Command arguments list + 10-minute timeout
+• Error Handling: Captures stderr and raises RuntimeError with last 3 lines
+• Returns: Subprocess result object
+
+convert_file(input_path, output_format) - MAIN CONVERSION LOGIC
+• Step 1: Validate conversion is allowed (checks ALLOWED_CONVERSIONS dict)
+• Step 2: Generate unique output filename using UUID
+• Step 3: Route to appropriate converter:
+  
+  Image-to-Image: Uses Pillow (PIL) library
+  - Handles transparency conversion for JPEG
+  - Converts color modes appropriately
+  
+  PDF-to-DOCX: Uses pdf2docx library
+  
+  Video-to-Audio: Uses FFmpeg (audio extraction only, no video re-encoding)
+  
+  Audio-to-Audio: Uses FFmpeg with specific codecs
+  
+  Video-to-Video: Uses FFmpeg with appropriate codec selection
+  - MP4: libx264 codec (most compatible)
+  - WebM: libvpx-vp9 codec
+  - Other formats: Stream copy for speed
+
+• Step 4: Sanity check - ensure output file exists and isn't empty
+• Step 5: Return output file path
+
+
+3. API ROUTES
+-------------
+
+GET @app.route("/")
+• Serves the main index.html file
+• Entry point for the application
+
+GET @app.route("/api/formats")
+• Returns JSON with supported formats for each category
+• Used by frontend to populate dropdown menus
+• Format: {video: {from: [...], to: [...]}, ...}
+
+POST @app.route("/api/convert")
+Receives: 
+  - file: Multipart form-data file upload
+  - format: Target format as string
+  - quality (optional): For image quality
+
+Process:
+  1. Validate file exists
+  2. Secure filename using werkzeug
+  3. Generate unique temporary filepath
+  4. Call convert_file() function
+  5. Send converted file back to browser
+  6. Auto-cleanup both input and output files (using @after_this_request decorator)
+
+Error Handling: Returns JSON errors with appropriate HTTP status codes
+  - 400: Bad request (no file, no format)
+  - 504: Timeout (file too large)
+  - 500: Conversion failed
+
+
+4. SECURITY & PRIVACY FEATURES
+------------------------------
+
+• secure_filename() - Sanitizes uploaded filenames
+• uuid.uuid4() - Prevents filename guessing/enumeration
+• File cleanup after conversion - Automatic deletion (privacy-first)
+• @after_this_request decorator - Ensures cleanup even on errors
+• try/finally block - Guarantees input file deletion
+• CORS enabled - Only allows frontend requests
+• No database - No user data retention
+
+
+FRONTEND ARCHITECTURE (HTML/JAVASCRIPT)
+================================================================================
+
+1. UI COMPONENTS
+----------------
+
+• Header: Logo + Dark mode toggle + Tagline
+• Drop Zone: Drag-and-drop area with visual feedback
+• File Queue: Cards showing uploaded files with controls
+• Format Selector: Dropdown to choose output format
+• Quality Slider: For image conversions (conditional visibility)
+• Progress Bar: Visual upload/conversion feedback
+• Status Messages: Loading/success/error states
+• Action Bar: "Convert All" button + "Download ZIP" button
+• Download Section: Shows converted files ready for download
+
+
+2. JAVASCRIPT FEATURES
+----------------------
+
+State Management:
+• jobs array stores: {id, file, format, quality, blob, blobSize, status}
+• Status values: "idle", "converting", "done", "error"
+
+Key Functions:
+• addFiles() - Adds files to queue
+• renderCard() - Creates UI card for each file
+• convertJob() - Sends file to backend via Fetch API
+• updateActionBar() - Shows/hides buttons based on state
+• setCardStatus() - Updates status messages
+• triggerDownload() - Downloads blob to user's device
+• zipBtn - Creates ZIP archive of all converted files
+
+User Interactions:
+• Drag & drop file support
+• Click to browse file picker
+• Real-time format selection
+• Quality adjustment slider (images only)
+• Individual file removal
+• Batch conversion
+• ZIP download of all files
+
+
+3. VISUAL FEATURES
+------------------
+
+• Dark Mode: Toggle with localStorage persistence
+• Mouse Glow: Custom cursor effect (radial gradient follows mouse)
+• Grid Background: Decorative grid overlay
+• Animations: Slide-up cards, spinning loader, progress bar
+• Responsive Design: Works on mobile/tablet/desktop
+• Color Coding: Green (success), Red (error), Amber (processing)
+
+
+DATA FLOW (COMPLETE REQUEST CYCLE)
+================================================================================
+
+1. User drags/drops files into browser
+2. JavaScript reads File objects from input
+3. Creates job entries (id, file, format, etc.)
+4. Renders UI cards for each file
+5. User clicks "Convert All"
+6. For each job:
+   - Creates FormData with file + target format
+   - Sends POST to /api/convert
+   - Shows progress: "Uploading..." → "Converting..." → "Done"
+7. Backend receives multipart form data
+8. Validates file and format
+9. Calls convert_file() with appropriate processor
+10. Returns converted file as blob
+11. Frontend receives blob, stores in job.blob
+12. Shows download button
+13. Backend auto-cleans temporary files
+14. User clicks download
+15. Browser saves file using triggerDownload()
+
+
+KEY FEATURES TO MENTION IN INTERVIEW
+================================================================================
+
+✅ No Backend Database - Completely stateless, privacy-focused
+✅ Multiple File Formats - 20+ media formats supported
+✅ Smart Format Routing - Different processors for different file types
+✅ Error Handling - Comprehensive try/catch with user-friendly messages
+✅ File Cleanup - Automatic deletion after conversion (security)
+✅ Batch Processing - Convert multiple files in sequence
+✅ ZIP Export - Download all converted files as one archive
+✅ Dark Mode - UI theme toggle with persistence
+✅ Responsive Design - Mobile-friendly interface
+✅ Real-time Progress - Visual feedback during conversion
+✅ Drag & Drop - Modern file upload UX
+✅ FFmpeg Integration - Sophisticated media processing via subprocess
+
+
+SUPPORTED FILE FORMATS
+================================================================================
+
+VIDEO FORMATS
+• Input: MP4, MOV, AVI, WMV, MKV, WebM
+• Output: Can convert to other video formats OR audio formats
+
+AUDIO FORMATS
+• Input: MP3, WAV, FLAC, OGG, AAC, M4A
+• Output: Can convert to other audio formats only
+
+IMAGE FORMATS
+• Input: JPG, JPEG, PNG, WebP, GIF, BMP, TIFF
+• Output: Can convert to other image formats
+
+DOCUMENT FORMATS
+• Input: PDF
+• Output: DOCX (Word format)
+
+
+POTENTIAL IMPROVEMENTS TO MENTION
+================================================================================
+
+• Add user queue management (pause, resume conversions)
+• Implement progress webhooks for real-time updates
+• Add preset quality profiles (Low/Medium/High)
+• Support batch format conversion (all files to one format)
+• Add video thumbnail preview
+• Implement file size limit enforcement
+• Add conversion history/analytics
+• Support more document formats (XLSX, PPT)
+• Add watermark/overlay options for videos
+• Implement rate limiting to prevent abuse
+• Add user authentication for tracking conversions
+• Create admin dashboard for monitoring
+
+
+DEPLOYMENT
+================================================================================
+
+• Procfile: web: python app.py (for Heroku/cloud platforms)
+• Environment Variable: PORT (defaults to 5000 if not set)
+• Server Mode: host="0.0.0.0" - accessible from any network interface
+• Threading: threaded=True - handles concurrent requests
+
+How to Run Locally:
+1. Create virtual environment: python -m venv venv
+2. Activate: .\venv\Scripts\Activate.ps1 (Windows) or source venv/bin/activate (Linux/Mac)
+3. Install dependencies: pip install -r requirements.txt
+4. Install FFmpeg: winget install ffmpeg (Windows) or brew install ffmpeg (Mac)
+5. Run app: python app.py
+6. Visit: http://localhost:5000/
+
+
+PROJECT STRUCTURE
+================================================================================
+
+converter_web_app/
+├── convertor/
+│   ├── app.py                    # Main Flask application
+│   ├── index.html                # Frontend UI
+│   ├── requirements.txt           # Python dependencies
+│   ├── Procfile                  # Deployment config
+│   ├── README.md                 # Documentation
+│   ├── explain.txt               # This file
+│   ├── static/
+│   │   └── js/                   # JavaScript files (if any)
+│   ├── uploads/                  # Temporary file storage
+│   └── venv/                     # Virtual environment
+
+
+SUMMARY FOR INTERVIEW
+================================================================================
+
+This is a full-stack file conversion application that demonstrates:
+
+1. BACKEND SKILLS:
+   - Flask framework & REST API design
+   - File handling & validation (werkzeug, secure_filename)
+   - External tool integration (FFmpeg via subprocess)
+   - Multiple library integration (Pillow, pdf2docx)
+   - Error handling & exception management
+   - Cleanup & resource management
+   - Security practices (UUID, file sanitization)
+   - CORS configuration for cross-origin requests
+
+2. FRONTEND SKILLS:
+   - Vanilla JavaScript (no frameworks)
+   - Modern browser APIs (Fetch, FormData, Blob, File, localStorage)
+   - DOM manipulation & event handling
+   - State management
+   - Responsive UI design
+   - CSS animations & dark mode
+   - User experience enhancements (drag-drop, progress feedback)
+
+3. SYSTEM DESIGN SKILLS:
+   - Stateless architecture
+   - Privacy-focused design
+   - Batch processing
+   - Asynchronous operations
+   - Scalability considerations
+
+4. SOFTWARE ENGINEERING PRACTICES:
+   - Code organization
+   - Error handling
+   - Documentation
+   - Security practices
+   - Performance optimization
+
+GOOD LUCK WITH YOUR INTERVIEW! 🚀
+
+================================================================================

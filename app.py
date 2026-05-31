@@ -6,7 +6,14 @@ from flask import Flask, request, jsonify, send_file, after_this_request
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
+# Get the absolute path to the current directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Initialize Flask app with static and template folders
+app = Flask(__name__, 
+            static_folder=os.path.join(BASE_DIR, 'static'),
+            static_url_path='/static',
+            template_folder=BASE_DIR)
 CORS(app)
 
 UPLOAD_FOLDER = "uploads"
@@ -212,7 +219,7 @@ def convert_file(input_path, output_format):
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.route("/")
 def index():
-    return send_file("index.html")
+    return send_file(os.path.join(BASE_DIR, "index.html"))
 
 
 @app.route("/api/formats", methods=["GET"])
