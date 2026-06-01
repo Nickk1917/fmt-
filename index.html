@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
-    /* ── Variables ─────────────────────────────────────────── */
     :root {
       --amber: #D97706;
       --amber-dark: #b45309;
@@ -32,7 +31,6 @@
       --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
     }
 
-    /* ── Dark mode ─────────────────────────────────────────── */
     body.dark {
       --bg: #141210;
       --bg2: #1C1A16;
@@ -65,8 +63,7 @@
 
     body::before {
       content: '';
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background-image:
         linear-gradient(var(--border) 1px, transparent 1px),
         linear-gradient(90deg, var(--border) 1px, transparent 1px);
@@ -77,11 +74,9 @@
       transition: opacity 0.3s;
     }
 
-    /* ── Mouse glow ────────────────────────────────────────── */
     #mouse-glow {
       position: fixed;
-      width: 500px;
-      height: 500px;
+      width: 500px; height: 500px;
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
@@ -91,40 +86,27 @@
       will-change: left, top;
     }
 
-    /* ── Page wrap ─────────────────────────────────────────── */
     .page-wrap {
-      position: relative;
-      z-index: 1;
+      position: relative; z-index: 1;
       max-width: 640px;
       margin: 0 auto;
       padding: clamp(40px, 8vw, 80px) clamp(16px, 5vw, 32px) 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+      display: flex; flex-direction: column; align-items: stretch;
     }
 
-    /* ── Header ────────────────────────────────────────────── */
-    header {
-      margin-bottom: clamp(36px, 6vw, 52px);
-    }
+    /* ── Header ── */
+    header { margin-bottom: clamp(36px, 6vw, 52px); }
 
     .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
     }
 
-    .logo-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .logo-row { display: flex; align-items: center; gap: 10px; }
 
     .logo-icon {
       width: 36px; height: 36px;
-      background: var(--text);
-      border-radius: 8px;
+      background: var(--text); border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       transition: transform 0.2s, background 0.2s;
@@ -135,31 +117,19 @@
     h1 {
       font-family: 'Syne', sans-serif;
       font-size: clamp(1.6rem, 5vw, 2.2rem);
-      font-weight: 800;
-      letter-spacing: -2px;
-      line-height: 1;
-      cursor: default;
-      transition: color 0.2s;
-      color: var(--text);
+      font-weight: 800; letter-spacing: -2px; line-height: 1;
+      cursor: default; transition: color 0.2s; color: var(--text);
     }
     h1:hover { color: var(--amber); }
 
-    /* dark mode toggle */
     #dark-toggle {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.72rem;
-      color: var(--text-2);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 12px; cursor: pointer;
+      font-family: inherit; font-size: 0.72rem; color: var(--text-2);
       display: flex; align-items: center; gap: 6px;
-      transition: all 0.2s;
-      box-shadow: var(--shadow);
-      white-space: nowrap;
+      transition: all 0.2s; box-shadow: var(--shadow); white-space: nowrap;
     }
-    #dark-toggle:hover { border-color: var(--amber); color: var(--amber); box-shadow: 2px 1px 100px#ffffff;background-color: #f4f4f4; }
+    #dark-toggle:hover { border-color: var(--amber); color: var(--amber); }
     #dark-toggle svg { width: 13px; height: 13px; stroke: currentColor; }
 
     .tagline {
@@ -168,30 +138,26 @@
     }
     .tagline span {
       font-size: clamp(0.68rem, 2vw, 0.75rem);
-      color: var(--text-3);
-      letter-spacing: 0.06em;
+      color: var(--text-3); letter-spacing: 0.06em;
       transition: color 0.18s, transform 0.18s;
       cursor: default; display: inline-block;
     }
     .tagline span:hover { color: var(--amber); transform: translateY(-1px); }
     .tagline .dot { color: var(--border-strong); font-size: 0.5rem; }
 
-    /* ── Drop zone ─────────────────────────────────────────── */
+    /* ── Drop zone ── */
     #dropzone {
       background: var(--surface);
       border: 1.5px dashed var(--border-strong);
       border-radius: var(--radius);
       padding: clamp(36px, 7vw, 56px) clamp(24px, 5vw, 48px);
-      text-align: center;
-      cursor: pointer;
+      text-align: center; cursor: pointer;
       transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.15s;
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
       box-shadow: var(--shadow);
     }
     #dropzone::after {
-      content: '';
-      position: absolute; inset: 0;
+      content: ''; position: absolute; inset: 0;
       background: radial-gradient(ellipse at 50% 0%, var(--amber-glow) 0%, transparent 70%);
       opacity: 0; transition: opacity 0.3s; pointer-events: none;
     }
@@ -207,13 +173,10 @@
     .dz-icon {
       width: 52px; height: 52px;
       margin: 0 auto 16px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: var(--bg); border: 1px solid var(--border);
       border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-      font-size: 1.6rem;
-      position: relative;
+      transition: all 0.2s; font-size: 1.6rem; position: relative;
     }
     .dz-icon svg { width: 22px; height: 22px; stroke: var(--text-3); transition: stroke 0.2s; }
     #dropzone:hover .dz-icon,
@@ -221,10 +184,7 @@
     #dropzone:hover .dz-icon svg,
     #dropzone.drag-over .dz-icon svg { stroke: var(--amber); }
 
-    /* file type emoji shown while dragging */
-    .dz-icon .type-emoji {
-      display: none; font-size: 1.6rem; line-height: 1;
-    }
+    .dz-icon .type-emoji { display: none; font-size: 1.6rem; line-height: 1; }
     .dz-icon svg.dz-svg { display: block; }
     #dropzone.drag-over .dz-icon .type-emoji { display: block; }
     #dropzone.drag-over .dz-icon svg.dz-svg { display: none; }
@@ -232,31 +192,24 @@
     .drop-label { font-size: clamp(0.8rem, 2.2vw, 0.88rem); color: var(--text-2); line-height: 1.5; }
     .drop-label strong { color: var(--amber); }
     .drop-sub { margin-top: 6px; font-size: 0.7rem; color: var(--text-3); letter-spacing: 0.04em; }
-
     #file-input { display: none; }
 
-    /* ── Queue ─────────────────────────────────────────────── */
-    #queue {
-      display: flex; flex-direction: column; gap: 10px;
-      margin-top: 16px;
-    }
+    /* ── Queue ── */
+    #queue { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 
     .q-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
       box-shadow: var(--shadow);
       animation: slideUp 0.22s ease;
       transition: border-color 0.2s;
     }
-    .q-card.done   { border-color: var(--green); }
-    .q-card.error  { border-color: var(--red); }
-    .q-card.active { border-color: var(--amber); }
+    .q-card.done  { border-color: var(--green); }
+    .q-card.error { border-color: var(--red); }
+    .q-card.active{ border-color: var(--amber); }
 
-    .q-top {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-    }
+    .q-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
     .q-file-icon {
       width: 32px; height: 32px; border-radius: 6px;
       background: var(--bg2); border: 1px solid var(--border);
@@ -276,9 +229,7 @@
     }
     .q-remove:hover { color: var(--red); background: var(--red-bg); }
 
-    .q-controls {
-      display: flex; gap: 8px; align-items: flex-end;
-    }
+    .q-controls { display: flex; gap: 8px; align-items: flex-end; }
     .q-controls > div { flex: 1; }
 
     .field-label {
@@ -289,8 +240,7 @@
 
     select {
       width: 100%; padding: 9px 32px 9px 12px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
+      border-radius: var(--radius-sm); border: 1px solid var(--border);
       background: var(--bg);
       font-family: inherit; font-size: 0.82rem; color: var(--text);
       appearance: none;
@@ -300,20 +250,44 @@
     }
     select:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
 
-    /* quality slider */
-    .q-slider-wrap { margin-top: 8px; display: none; }
+    /* ── Quality slider ── */
+    .q-slider-wrap { margin-top: 10px; display: none; }
     .q-slider-wrap.visible { display: block; }
-    .q-slider-row { display: flex; align-items: center; gap: 8px; }
-    .q-slider-row input[type=range] {
-      flex: 1; accent-color: var(--amber);
-      height: 4px; cursor: pointer;
+
+    .q-slider-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
     }
-    .q-slider-val {
-      font-size: 0.72rem; color: var(--amber);
-      font-weight: 500; min-width: 30px; text-align: right;
+    .q-slider-label { font-size: 0.65rem; letter-spacing: 0.09em; color: var(--text-3); text-transform: uppercase; }
+    .q-slider-badge {
+      font-size: 0.65rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+      background: var(--amber-light); color: var(--amber-dark);
+      transition: background 0.2s;
+    }
+    body.dark .q-slider-badge { color: var(--amber); }
+
+    .q-slider-row { display: flex; align-items: center; gap: 10px; }
+    .q-slider-row input[type=range] {
+      flex: 1; accent-color: var(--amber); height: 4px; cursor: pointer;
     }
 
-    /* progress bar per card */
+    .q-slider-hints {
+      display: flex; justify-content: space-between;
+      margin-top: 4px;
+    }
+    .q-slider-hints span { font-size: 0.58rem; color: var(--text-3); }
+
+    /* note under slider for lossless formats */
+    .q-lossless-note {
+      display: none; margin-top: 6px;
+      font-size: 0.62rem; color: var(--text-3);
+      padding: 5px 9px; border-radius: 5px;
+      background: var(--bg2); border: 1px solid var(--border);
+    }
+    .q-lossless-note.visible { display: block; }
+
+    /* ── Progress ── */
     .q-progress-wrap {
       height: 3px; background: var(--border);
       border-radius: 999px; margin-top: 10px; overflow: hidden; display: none;
@@ -325,7 +299,7 @@
       border-radius: 999px; transition: width 0.4s ease;
     }
 
-    /* status row */
+    /* ── Status ── */
     .q-status {
       font-size: 0.72rem; margin-top: 8px;
       padding: 7px 12px; border-radius: 6px; display: none;
@@ -335,7 +309,7 @@
     .q-status.success { background: var(--green-bg); color: var(--green); }
     .q-status.error   { background: var(--red-bg);   color: var(--red); }
 
-    /* download row */
+    /* ── Download row ── */
     .q-dl-row {
       display: none; align-items: center; gap: 10px;
       margin-top: 10px; padding-top: 10px;
@@ -357,10 +331,8 @@
     .q-dl-btn:hover { background: var(--amber); }
     .q-dl-btn svg { width: 12px; height: 12px; stroke: currentColor; }
 
-    /* ── Action bar ────────────────────────────────────────── */
-    #action-bar {
-      display: none; gap: 10px; margin-top: 12px;
-    }
+    /* ── Action bar ── */
+    #action-bar { display: none; gap: 10px; margin-top: 12px; }
     #action-bar.visible { display: flex; }
 
     #convert-all-btn {
@@ -391,15 +363,12 @@
     #zip-btn:hover { border-color: var(--amber); color: var(--amber); }
     #zip-btn svg { width: 14px; height: 14px; stroke: currentColor; }
 
-    /* ── Divider ───────────────────────────────────────────── */
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 36px 0 18px;
-    }
+    /* ── Divider ── */
+    .divider { display: flex; align-items: center; gap: 12px; margin: 36px 0 18px; }
     .divider-line { flex: 1; height: 1px; background: var(--border); }
     .divider-text { font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; }
 
-    /* ── Info strip ────────────────────────────────────────── */
+    /* ── Info strip ── */
     .info-strip {
       user-select: none;
       display: flex; align-items: flex-start; gap: 10px;
@@ -411,11 +380,8 @@
     .info-strip p { font-size: 0.7rem; color: var(--text-2); line-height: 1.6; }
     .info-strip p span { color: var(--text-3); display: block; margin-top: 2px; font-size: 0.65rem; }
 
-    /* ── Clear row ─────────────────────────────────────────── */
-    .clear-row {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; margin-top: 14px;
-    }
+    /* ── Clear row ── */
+    .clear-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; }
     #refresh-btn {
       display: flex; align-items: center; gap: 6px;
       padding: 8px 16px; border-radius: var(--radius-sm);
@@ -431,37 +397,28 @@
       margin-top: 48px; text-align: center;
       font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.06em;
     }
+    .kronstadt { user-select: none; transition: all 0.2s; }
+    .kronstadt:hover { color: #F59E0B; transform: translateY(5px); text-shadow: 2px 1px 5px #F59E0B; }
+    .kronstadt:active { color: #ff5e00; transform: translateY(2px); text-shadow: 1px 17px 0px #ffa679; }
 
-    /* ── Animations ────────────────────────────────────────── */
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Responsive ────────────────────────────────────────── */
     @media (max-width: 480px) {
       .q-controls { flex-direction: column; }
       .tagline { padding-left: 0; justify-content: center; }
       .logo-row { justify-content: flex-start; }
       .header-top { flex-wrap: wrap; gap: 10px; }
     }
-
-    .kronstadt{
-      user-select: none;
-      transition: all 0.2s;
-    }
-    .kronstadt:hover{color: #F59E0B;transform: translateY(5px); text-shadow: 2px 1px 5px#F59E0B; }
-      .kronstadt:active{color: #ff5e00;transform: translateY(2px); text-shadow: 1px 17px 0px #ffa679; }
-</style>
+  </style>
 </head>
 <body>
 <div id="mouse-glow"></div>
 <div class="page-wrap">
 
-  <!-- Header -->
   <header>
     <div class="header-top">
       <div class="logo-row">
@@ -490,7 +447,6 @@
     </div>
   </header>
 
-  <!-- Drop zone -->
   <div id="dropzone">
     <div class="dz-icon">
       <svg class="dz-svg" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -505,10 +461,8 @@
       accept=".mp4,.mov,.avi,.wmv,.mkv,.mp3,.wav,.flac,.ogg,.jpg,.jpeg,.png,.webp,.gif,.bmp,.pdf" />
   </div>
 
-  <!-- File queue -->
   <div id="queue"></div>
 
-  <!-- Action bar -->
   <div id="action-bar">
     <button id="convert-all-btn" disabled>
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -524,14 +478,12 @@
     </button>
   </div>
 
-  <!-- Divider -->
   <div class="divider">
     <div class="divider-line"></div>
     <span class="divider-text">privacy</span>
     <div class="divider-line"></div>
   </div>
 
-  <!-- Info strip -->
   <div class="info-strip">
     <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
       <rect x="3" y="10" width="18" height="12" rx="1"/>
@@ -553,61 +505,86 @@
     </button>
   </div>
 
-  <footer>fmt/ &nbsp;·&nbsp; open source file converter &nbsp;·&nbsp; runs locally <br> <p class="kronstadt">Build by kronstadt</p></footer>
+  <footer>fmt/ &nbsp;·&nbsp; open source file converter &nbsp;·&nbsp; runs locally<br>
+    <p class="kronstadt">Build by kronstadt</p>
+  </footer>
 </div>
 
 <script>
-// ── Constants ───────────────────────────────────────────────────────────────
 const API = "/api";
 
+// ── Format definitions ────────────────────────────────────────────────────────
 const FORMAT_MAP = {
-  video:    { from: ["mp4","mov","avi","wmv","mkv","webm"], to: ["mp4","mp3","wav","mov","webm"] },
-  audio:    { from: ["mp3","wav","flac","ogg","aac","m4a"], to: ["mp3","wav","flac","ogg"] },
-  image:    { from: ["jpg","jpeg","png","webp","gif","bmp"], to: ["jpg","png","webp"] },
+  video:    { from: ["mp4","mov","avi","wmv","mkv","webm"], to: ["mp4","mp3","wav","mov","webm","mkv","avi","ogg","aac","m4a","flac"] },
+  audio:    { from: ["mp3","wav","flac","ogg","aac","m4a"], to: ["mp3","wav","flac","ogg","aac","m4a"] },
+  image:    { from: ["jpg","jpeg","png","webp","gif","bmp","tiff"], to: ["jpg","png","webp","gif","bmp","tiff"] },
   document: { from: ["pdf"], to: ["docx"] },
 };
 
-const TYPE_EMOJI = {
-  video: "🎬", audio: "🎵", image: "🖼️", document: "📄", unknown: "📁"
-};
+const TYPE_EMOJI = { video:"🎬", audio:"🎵", image:"🖼️", document:"📄", unknown:"📁" };
 
-const IMAGE_EXTS = new Set(["jpg","jpeg","png","webp","gif","bmp"]);
+const IMAGE_EXTS = new Set(["jpg","jpeg","png","webp","gif","bmp","tiff"]);
+const VIDEO_EXTS = new Set(["mp4","mov","avi","wmv","mkv","webm"]);
+const AUDIO_EXTS = new Set(["mp3","wav","flac","ogg","aac","m4a"]);
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// Formats where quality slider has NO lossy effect (always lossless)
+const LOSSLESS_TARGETS = new Set(["wav","flac","bmp","tiff","docx"]);
+
+// ── Slider label + hint per file type ────────────────────────────────────────
+function getSliderMeta(inputExt, targetFmt) {
+  if (LOSSLESS_TARGETS.has(targetFmt)) {
+    return { show: true, lossless: true, label: "Quality / Size", hint: `${targetFmt.toUpperCase()} is lossless — slider has no effect` };
+  }
+  if (IMAGE_EXTS.has(inputExt) && IMAGE_EXTS.has(targetFmt)) {
+    if (targetFmt === "png") {
+      return { show: true, lossless: false, label: "Compression level", leftHint: "smaller file", rightHint: "better quality" };
+    }
+    return { show: true, lossless: false, label: "Quality / Size", leftHint: "smallest file", rightHint: "best quality" };
+  }
+  if (VIDEO_EXTS.has(inputExt) && VIDEO_EXTS.has(targetFmt)) {
+    return { show: true, lossless: false, label: "Quality / Size", leftHint: "smallest file", rightHint: "best quality" };
+  }
+  if (VIDEO_EXTS.has(inputExt) && AUDIO_EXTS.has(targetFmt) && !LOSSLESS_TARGETS.has(targetFmt)) {
+    return { show: true, lossless: false, label: "Audio bitrate", leftHint: "~32k (tiny)", rightHint: "~320k (best)" };
+  }
+  if (AUDIO_EXTS.has(inputExt) && AUDIO_EXTS.has(targetFmt) && !LOSSLESS_TARGETS.has(targetFmt)) {
+    return { show: true, lossless: false, label: "Audio bitrate", leftHint: "~32k (tiny)", rightHint: "~320k (best)" };
+  }
+  // PDF → DOCX: no slider needed
+  return { show: false };
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function getExt(f) { return f.split(".").pop().toLowerCase(); }
 
 function formatBytes(b) {
   if (b < 1024) return b + " B";
-  if (b < 1024*1024) return (b/1024).toFixed(1) + " KB";
-  return (b/1024/1024).toFixed(2) + " MB";
+  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + " KB";
+  return (b / 1024 / 1024).toFixed(2) + " MB";
 }
 
 function getFileType(filename) {
-  const ext = getExt(filename);
+  const e = getExt(filename);
   for (const [type, v] of Object.entries(FORMAT_MAP)) {
-    if (v.from.includes(ext)) return type;
+    if (v.from.includes(e)) return type;
   }
   return "unknown";
 }
 
 function getOutputFormats(filename) {
-  const ext = getExt(filename);
+  const e = getExt(filename);
   for (const v of Object.values(FORMAT_MAP)) {
-    if (v.from.includes(ext)) return v.to;
+    if (v.from.includes(e)) return v.to;
   }
   return [];
 }
 
-function isImageToImage(filename, targetFmt) {
-  return IMAGE_EXTS.has(getExt(filename)) && IMAGE_EXTS.has(targetFmt);
-}
-
-// ── Dark mode ────────────────────────────────────────────────────────────────
+// ── Dark mode ─────────────────────────────────────────────────────────────────
 const darkToggle = document.getElementById("dark-toggle");
 const darkIcon   = document.getElementById("dark-icon");
 const darkLabel  = document.getElementById("dark-label");
 
-const SUN_PATH = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const SUN_PATH  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
 const MOON_PATH = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/>`;
 
 function applyDark(isDark) {
@@ -616,20 +593,18 @@ function applyDark(isDark) {
   darkLabel.textContent = isDark ? "Light" : "Dark";
   localStorage.setItem("fmt-dark", isDark ? "1" : "0");
 }
-
-// Load saved preference
 applyDark(localStorage.getItem("fmt-dark") === "1");
 darkToggle.addEventListener("click", () => applyDark(!document.body.classList.contains("dark")));
 
-// ── Mouse glow ───────────────────────────────────────────────────────────────
+// ── Mouse glow ────────────────────────────────────────────────────────────────
 const glow = document.getElementById("mouse-glow");
 document.addEventListener("mousemove", e => {
   glow.style.left = e.clientX + "px";
   glow.style.top  = e.clientY + "px";
 });
 
-// ── File queue state ─────────────────────────────────────────────────────────
-let jobs = []; // { id, file, format, quality, blob, blobSize, status }
+// ── Queue state ───────────────────────────────────────────────────────────────
+let jobs = [];
 
 const dropzone      = document.getElementById("dropzone");
 const fileInput     = document.getElementById("file-input");
@@ -639,11 +614,11 @@ const convertAllBtn = document.getElementById("convert-all-btn");
 const zipBtn        = document.getElementById("zip-btn");
 const dragEmoji     = document.getElementById("drag-emoji");
 
-// ── Add files ────────────────────────────────────────────────────────────────
+// ── Add files ─────────────────────────────────────────────────────────────────
 function addFiles(files) {
   for (const file of files) {
     const formats = getOutputFormats(file.name);
-    if (!formats.length) continue; // skip unsupported
+    if (!formats.length) continue;
     const id = crypto.randomUUID();
     jobs.push({ id, file, format: formats[0], quality: 85, blob: null, blobSize: 0, status: "idle" });
     renderCard(jobs[jobs.length - 1]);
@@ -651,16 +626,17 @@ function addFiles(files) {
   updateActionBar();
 }
 
-// ── Render a single card ─────────────────────────────────────────────────────
+// ── Render a card ─────────────────────────────────────────────────────────────
 function renderCard(job) {
-  const formats   = getOutputFormats(job.file.name);
-  const fileType  = getFileType(job.file.name);
-  const emoji     = TYPE_EMOJI[fileType] || "📁";
-  const showSlider = isImageToImage(job.file.name, job.format);
+  const formats  = getOutputFormats(job.file.name);
+  const fileType = getFileType(job.file.name);
+  const emoji    = TYPE_EMOJI[fileType] || "📁";
+  const meta     = getSliderMeta(getExt(job.file.name), job.format);
 
   const card = document.createElement("div");
   card.className = "q-card";
   card.id = "card-" + job.id;
+
   card.innerHTML = `
     <div class="q-top">
       <div class="q-file-icon">${emoji}</div>
@@ -670,6 +646,7 @@ function renderCard(job) {
       </div>
       <button class="q-remove" data-id="${job.id}" title="Remove">✕</button>
     </div>
+
     <div class="q-controls">
       <div>
         <label class="field-label">Convert to</label>
@@ -678,17 +655,30 @@ function renderCard(job) {
         </select>
       </div>
     </div>
-    <div class="q-slider-wrap ${showSlider ? "visible" : ""}" id="slider-${job.id}">
-      <label class="field-label" style="margin-top:8px;">Size reduce?</label>
+
+    <div class="q-slider-wrap ${meta.show ? "visible" : ""}" id="slider-${job.id}">
+      <div class="q-slider-header">
+        <span class="q-slider-label" id="slabel-${job.id}">${meta.label || "Quality / Size"}</span>
+        <span class="q-slider-badge" id="sbadge-${job.id}">${job.quality}%</span>
+      </div>
       <div class="q-slider-row">
-        <input type="range" min="10" max="100" value="${job.quality}" class="q-quality-slider" data-id="${job.id}" />
-        <span class="q-slider-val" id="qval-${job.id}">${job.quality}%</span>
+        <input type="range" min="1" max="100" value="${job.quality}"
+               class="q-quality-slider" data-id="${job.id}" />
+      </div>
+      <div class="q-slider-hints">
+        <span id="shint-l-${job.id}">${meta.leftHint || "smallest"}</span>
+        <span id="shint-r-${job.id}">${meta.rightHint || "best quality"}</span>
+      </div>
+      <div class="q-lossless-note ${meta.lossless ? "visible" : ""}" id="snote-${job.id}">
+        ${meta.hint || ""}
       </div>
     </div>
+
     <div class="q-progress-wrap" id="prog-${job.id}">
       <div class="q-progress-bar" id="bar-${job.id}"></div>
     </div>
     <div class="q-status" id="status-${job.id}"></div>
+
     <div class="q-dl-row" id="dl-${job.id}">
       <div class="q-dl-info">
         <div class="q-dl-name" id="dlname-${job.id}"></div>
@@ -703,27 +693,28 @@ function renderCard(job) {
       </button>
     </div>
   `;
+
   queueEl.appendChild(card);
 
-  // Format select change
+  // Format change → update slider visibility/meta
   card.querySelector(".q-fmt-select").addEventListener("change", e => {
     const j = jobs.find(x => x.id === e.target.dataset.id);
     if (!j) return;
     j.format = e.target.value;
-    const sliderWrap = document.getElementById("slider-" + j.id);
-    sliderWrap.classList.toggle("visible", isImageToImage(j.file.name, j.format));
+    j.status = "idle"; // allow re-convert
+    updateSliderForJob(j);
     updateActionBar();
   });
 
-  // Quality slider
-  card.querySelector(".q-quality-slider")?.addEventListener("input", e => {
+  // Slider input
+  card.querySelector(".q-quality-slider").addEventListener("input", e => {
     const j = jobs.find(x => x.id === e.target.dataset.id);
     if (!j) return;
     j.quality = parseInt(e.target.value);
-    document.getElementById("qval-" + j.id).textContent = j.quality + "%";
+    document.getElementById("sbadge-" + j.id).textContent = j.quality + "%";
   });
 
-  // Remove button
+  // Remove
   card.querySelector(".q-remove").addEventListener("click", e => {
     const id = e.currentTarget.dataset.id;
     jobs = jobs.filter(x => x.id !== id);
@@ -731,7 +722,7 @@ function renderCard(job) {
     updateActionBar();
   });
 
-  // Download button
+  // Download
   card.querySelector(".q-dl-btn").addEventListener("click", e => {
     const j = jobs.find(x => x.id === e.currentTarget.dataset.id);
     if (!j?.blob) return;
@@ -739,17 +730,42 @@ function renderCard(job) {
   });
 }
 
-// ── Update action bar ────────────────────────────────────────────────────────
+// ── Update slider UI when format changes ──────────────────────────────────────
+function updateSliderForJob(job) {
+  const meta      = getSliderMeta(getExt(job.file.name), job.format);
+  const sliderWrap = document.getElementById("slider-" + job.id);
+  const noteEl    = document.getElementById("snote-" + job.id);
+  const labelEl   = document.getElementById("slabel-" + job.id);
+  const hintL     = document.getElementById("shint-l-" + job.id);
+  const hintR     = document.getElementById("shint-r-" + job.id);
+
+  sliderWrap.classList.toggle("visible", !!meta.show);
+  if (!meta.show) return;
+
+  labelEl.textContent = meta.label || "Quality / Size";
+  hintL.textContent   = meta.leftHint  || "smallest";
+  hintR.textContent   = meta.rightHint || "best quality";
+
+  if (meta.lossless) {
+    noteEl.textContent = meta.hint || "";
+    noteEl.classList.add("visible");
+  } else {
+    noteEl.classList.remove("visible");
+  }
+}
+
+// ── Action bar ────────────────────────────────────────────────────────────────
 function updateActionBar() {
-  const hasJobs = jobs.length > 0;
-  actionBar.classList.toggle("visible", hasJobs);
-  const allDone = jobs.length > 0 && jobs.every(j => j.status === "done");
-  zipBtn.classList.toggle("visible", allDone && jobs.length > 1);
+  const hasJobs      = jobs.length > 0;
+  const allDone      = jobs.length > 0 && jobs.every(j => j.status === "done");
   const anyConverting = jobs.some(j => j.status === "converting");
+
+  actionBar.classList.toggle("visible", hasJobs);
+  zipBtn.classList.toggle("visible", allDone && jobs.length > 1);
   convertAllBtn.disabled = !hasJobs || anyConverting;
 }
 
-// ── Set card status ──────────────────────────────────────────────────────────
+// ── Status / progress helpers ─────────────────────────────────────────────────
 function setCardStatus(id, text, type) {
   const el = document.getElementById("status-" + id);
   if (!el) return;
@@ -769,17 +785,29 @@ function setCardDone(job) {
   const card = document.getElementById("card-" + job.id);
   if (card) card.className = "q-card done";
 
-  const dlRow  = document.getElementById("dl-" + job.id);
+  const dlRow  = document.getElementById("dl-"     + job.id);
   const dlName = document.getElementById("dlname-" + job.id);
   const dlMeta = document.getElementById("dlmeta-" + job.id);
-  if (dlRow) dlRow.classList.add("visible");
+  if (dlRow)  dlRow.classList.add("visible");
 
   const outName = job.file.name.replace(/\.[^.]+$/, "") + "." + job.format;
   if (dlName) dlName.textContent = outName;
-  if (dlMeta) dlMeta.textContent = `converted · ${formatBytes(job.blobSize)}`;
+
+  // Show size comparison
+  const origSize  = job.file.size;
+  const newSize   = job.blobSize;
+  const pct       = origSize > 0 ? Math.round((newSize / origSize) * 100) : 100;
+  const saved     = origSize - newSize;
+  let sizeTxt     = `converted · ${formatBytes(newSize)}`;
+  if (saved > 0) {
+    sizeTxt += ` · saved ${formatBytes(saved)} (${100 - pct}% smaller)`;
+  } else if (saved < 0) {
+    sizeTxt += ` · ${formatBytes(-saved)} larger`;
+  }
+  if (dlMeta) dlMeta.textContent = sizeTxt;
 }
 
-// ── Convert a single job ─────────────────────────────────────────────────────
+// ── Convert one job ───────────────────────────────────────────────────────────
 async function convertJob(job) {
   job.status = "converting";
   const card = document.getElementById("card-" + job.id);
@@ -789,11 +817,9 @@ async function convertJob(job) {
   setCardProgress(job.id, 15);
 
   const form = new FormData();
-  form.append("file", job.file);
-  form.append("format", job.format);
-  if (isImageToImage(job.file.name, job.format)) {
-    form.append("quality", job.quality);
-  }
+  form.append("file",    job.file);
+  form.append("format",  job.format);
+  form.append("quality", job.quality);   // ← always sent now
 
   try {
     setCardProgress(job.id, 40);
@@ -807,7 +833,7 @@ async function convertJob(job) {
       throw new Error(err.error || "Conversion failed");
     }
 
-    const blob = await res.blob();
+    const blob   = await res.blob();
     job.blob     = blob;
     job.blobSize = blob.size;
     job.status   = "done";
@@ -821,12 +847,12 @@ async function convertJob(job) {
     job.status = "error";
     const card = document.getElementById("card-" + job.id);
     if (card) card.className = "q-card error";
-    setCardStatus(job.id, "Error: " + err.message, "error");
+    setCardStatus(job.id, "✗ " + err.message, "error");
     setCardProgress(job.id, 0);
   }
 }
 
-// ── Convert all ──────────────────────────────────────────────────────────────
+// ── Convert all ───────────────────────────────────────────────────────────────
 convertAllBtn.addEventListener("click", async () => {
   const pending = jobs.filter(j => j.status === "idle" || j.status === "error");
   if (!pending.length) return;
@@ -838,7 +864,6 @@ convertAllBtn.addEventListener("click", async () => {
     </svg>
     Converting…`;
 
-  // Convert sequentially to avoid overwhelming the server
   for (const job of pending) {
     await convertJob(job);
   }
@@ -853,20 +878,23 @@ convertAllBtn.addEventListener("click", async () => {
   updateActionBar();
 });
 
-// ── Download helpers ─────────────────────────────────────────────────────────
+// ── Download ──────────────────────────────────────────────────────────────────
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a   = Object.assign(document.createElement("a"), { href: url, download: filename });
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
+// ── ZIP all ───────────────────────────────────────────────────────────────────
 zipBtn.addEventListener("click", async () => {
   const done = jobs.filter(j => j.status === "done" && j.blob);
   if (!done.length) return;
 
   zipBtn.textContent = "Zipping…";
-  zipBtn.disabled = true;
+  zipBtn.disabled    = true;
 
   const zip = new JSZip();
   for (const job of done) {
@@ -885,7 +913,7 @@ zipBtn.addEventListener("click", async () => {
     Download ZIP`;
 });
 
-// ── Drag & drop ──────────────────────────────────────────────────────────────
+// ── Drag & drop ───────────────────────────────────────────────────────────────
 dropzone.addEventListener("click", e => {
   if (e.target.closest(".q-remove")) return;
   fileInput.click();
@@ -899,12 +927,10 @@ fileInput.addEventListener("change", e => {
 dropzone.addEventListener("dragover", e => {
   e.preventDefault();
   dropzone.classList.add("drag-over");
-  // Detect file type from drag items
   const item = e.dataTransfer?.items?.[0];
   if (item?.kind === "file") {
     const name = item.getAsFile()?.name || "";
-    const type = getFileType(name);
-    dragEmoji.textContent = TYPE_EMOJI[type] || "📁";
+    dragEmoji.textContent = TYPE_EMOJI[getFileType(name)] || "📁";
   }
 });
 
@@ -918,7 +944,7 @@ dropzone.addEventListener("drop", e => {
   if (e.dataTransfer.files.length) addFiles(Array.from(e.dataTransfer.files));
 });
 
-// ── Clear / refresh ──────────────────────────────────────────────────────────
+// ── Clear ─────────────────────────────────────────────────────────────────────
 document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
 </script>
 </body>
