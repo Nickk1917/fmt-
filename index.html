@@ -109,9 +109,10 @@
       background: var(--text); border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      transition: transform 0.2s, background 0.2s;
+      transition: transform 0.2s, background 0.2s, box-shadow 0.3s;
     }
     .logo-icon:hover { background: var(--amber); transform: rotate(-6deg) scale(1.08); }
+    .logo-icon:active { background: var(--amber); transform: rotate(6deg) scale(0.95); box-shadow: #fcac5b 1px 1px 50px; }
     .logo-icon svg { width: 18px; height: 18px; stroke: var(--bg); }
 
     h1 {
@@ -129,7 +130,7 @@
       display: flex; align-items: center; gap: 6px;
       transition: all 0.2s; box-shadow: var(--shadow); white-space: nowrap;
     }
-    #dark-toggle:hover { border-color: var(--amber); color: var(--amber); }
+    #dark-toggle:hover { box-shadow:  1px 1px 30px #ffc46d; background-color: #ffc46d ; border-color: var(--amber); color: var(--amber); }
     #dark-toggle svg { width: 13px; height: 13px; stroke: currentColor; }
 
     .tagline {
